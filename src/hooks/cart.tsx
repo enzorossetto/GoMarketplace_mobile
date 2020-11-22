@@ -44,21 +44,28 @@ const CartProvider: React.FC = ({ children }) => {
       const productExists = products.find(prod => prod.id === product.id);
 
       if (productExists) {
-        setProducts(
-          products.map(item =>
-            item.id === product.id
-              ? { ...item, quantity: item.quantity + 1 }
-              : item,
-          ),
+        const newProductsArray = products.map(item =>
+          item.id === product.id
+            ? { ...product, quantity: item.quantity + 1 }
+            : item,
         );
-      } else {
-        setProducts([...products, { ...product, quantity: 1 }]);
-      }
 
-      await AsyncStorage.setItem(
-        '@GoMarketplace:products',
-        JSON.stringify(products),
-      );
+        await AsyncStorage.setItem(
+          '@GoMarketplace:products',
+          JSON.stringify(newProductsArray),
+        );
+
+        setProducts(newProductsArray);
+      } else {
+        const newProductsArray = [...products, { ...product, quantity: 1 }];
+
+        await AsyncStorage.setItem(
+          '@GoMarketplace:products',
+          JSON.stringify(newProductsArray),
+        );
+
+        setProducts(newProductsArray);
+      }
     },
     [products],
   );
@@ -71,32 +78,30 @@ const CartProvider: React.FC = ({ children }) => {
           : product,
       );
 
-      setProducts(newProductsArray);
-
       await AsyncStorage.setItem(
         '@GoMarketplace:products',
         JSON.stringify(newProductsArray),
       );
+
+      setProducts(newProductsArray);
     },
     [products],
   );
 
   const decrement = useCallback(
     async id => {
-      const newProductsArray = products
-        .map(product =>
-          product.id === id
-            ? { ...product, quantity: product.quantity - 1 }
-            : product,
-        )
-        .filter(product => product.quantity > 0);
-
-      setProducts(newProductsArray);
+      const newProductsArray = products.map(product =>
+        product.id === id
+          ? { ...product, quantity: product.quantity - 1 }
+          : product,
+      );
 
       await AsyncStorage.setItem(
         '@GoMarketplace:products',
         JSON.stringify(newProductsArray),
       );
+
+      setProducts(newProductsArray);
     },
     [products],
   );
